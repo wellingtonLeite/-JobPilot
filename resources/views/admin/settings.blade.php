@@ -73,10 +73,19 @@
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="px-2 py-1 bg-slate-200 text-slate-700 rounded text-xs font-bold">3º Prioridade</span>
-                            <label class="font-bold text-gray-900">Ollama Local URL</label>
+                            <label class="font-bold text-gray-900">Ollama API (Cloud ou Local)</label>
                         </div>
-                        <p class="text-sm text-gray-500 mb-3">Caso tenha o Ollama rodando localmente no servidor para total gratuidade e privacidade.</p>
-                        <input type="text" name="ollama_url" value="{{ $ollamaUrl }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 bg-white" placeholder="http://localhost:11434">
+                        <p class="text-sm text-gray-500 mb-3">Se for usar localmente deixe o URL padrão e a API Key em branco. Se for usar o Ollama Cloud, coloque o URL da nuvem e a chave gerada lá.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Ollama URL</label>
+                                <input type="text" name="ollama_url" value="{{ $ollamaUrl }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 bg-white" placeholder="https://api.ollama.com">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Ollama API Key</label>
+                                <input type="password" name="ollama_api_key" value="{{ $ollamaApiKey }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 bg-white" placeholder="Sua chave API do Ollama (Opcional)">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="pt-4 flex justify-end">

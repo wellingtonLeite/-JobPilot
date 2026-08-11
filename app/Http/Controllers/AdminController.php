@@ -12,6 +12,7 @@ class AdminController extends Controller
         $geminiKey = $settings['gemini_api_key'] ?? '';
         $openRouterKey = $settings['openrouter_api_key'] ?? '';
         $ollamaUrl = $settings['ollama_url'] ?? 'http://localhost:11434';
+        $ollamaApiKey = $settings['ollama_api_key'] ?? '';
 
         $metrics = [
             'users' => \App\Models\User::count(),
@@ -19,7 +20,7 @@ class AdminController extends Controller
             'applications' => \App\Models\Application::count(),
         ];
 
-        return view('admin.settings', compact('geminiKey', 'openRouterKey', 'ollamaUrl', 'metrics'));
+        return view('admin.settings', compact('geminiKey', 'openRouterKey', 'ollamaUrl', 'ollamaApiKey', 'metrics'));
     }
 
     public function store(Request $request)
@@ -28,6 +29,7 @@ class AdminController extends Controller
             'gemini_api_key' => 'nullable|string',
             'openrouter_api_key' => 'nullable|string',
             'ollama_url' => 'nullable|string',
+            'ollama_api_key' => 'nullable|string',
         ]);
 
         foreach ($validated as $key => $value) {

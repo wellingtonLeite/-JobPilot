@@ -14,6 +14,8 @@ class OllamaAIProvider implements AIProvider
             $url = 'http://localhost:11434';
         }
 
+        $apiKey = \App\Models\SystemSetting::where('key', 'ollama_api_key')->value('value');
+
         $prompt = "Avalie a vaga e o candidato e retorne EXATAMENTE UM JSON.
 VAGA:
 $jobDescription
@@ -21,7 +23,15 @@ CANDIDATO:
 $userProfileText
 FORMATO JSON: {\"score\":85,\"hard_skills\":[],\"soft_skills\":[],\"cover_letter\":\"\"}";
 
-        $response = Http::timeout(60)->post("{$url}/api/generate", [
+        $request = Http::timeout(60);
+        
+        if (!empty($apiKey)) {
+            $request = $request->withHeaders([
+                'Authorization' => "Bearer {$apiKey}"
+            ]);
+        }
+
+        $response = $request->post("{$url}/api/generate", [
             'model' => 'llama3',
             'prompt' => $prompt,
             'stream' => false,
