@@ -76,35 +76,26 @@
                             <h3 class="text-xl font-bold text-gray-900 mb-6">Sugestões de Vagas (IA)</h3>
                             
                             <div class="space-y-4">
+                                @forelse($matches as $match)
                                 <!-- Job Item -->
-                                <div class="bg-gray-50 rounded-2xl p-5 flex items-center justify-between border border-gray-100 hover:border-indigo-200 hover:shadow-sm transition cursor-pointer">
+                                <a href="{{ $match->jobPosting->source_url }}" target="_blank" class="block bg-gray-50 rounded-2xl p-5 flex items-center justify-between border border-gray-100 hover:border-indigo-200 hover:shadow-sm transition cursor-pointer">
                                     <div class="flex items-center space-x-4">
-                                        <div class="w-12 h-12 bg-white rounded-xl border border-gray-200 flex items-center justify-center shadow-sm font-bold text-indigo-600">IN</div>
+                                        <div class="w-12 h-12 bg-white rounded-xl border border-gray-200 flex items-center justify-center shadow-sm font-bold text-indigo-600">
+                                            {{ substr(strtoupper($match->jobPosting->job_source_id == 1 ? 'IN' : 'GP'), 0, 2) }}
+                                        </div>
                                         <div>
-                                            <h4 class="font-bold text-gray-900">Engenheiro de Software Sênior</h4>
-                                            <p class="text-sm text-gray-500">TechCorp S.A • Remoto</p>
+                                            <h4 class="font-bold text-gray-900">{{ $match->jobPosting->title }}</h4>
+                                            <p class="text-sm text-gray-500">{{ $match->jobPosting->company }} • {{ ucfirst($match->jobPosting->work_mode) }}</p>
                                         </div>
                                     </div>
                                     <div class="flex flex-col items-end">
-                                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide">94% MATCH</span>
-                                        <span class="text-xs text-gray-400 mt-1">Via LinkedIn</span>
+                                        <span class="bg-{{ $match->score >= 90 ? 'green' : 'indigo' }}-100 text-{{ $match->score >= 90 ? 'green-700' : '[#4f46e5]' }} px-3 py-1 rounded-full text-xs font-bold tracking-wide">{{ $match->score }}% MATCH</span>
+                                        <span class="text-xs text-gray-400 mt-1">Via {{ $match->jobPosting->sourceUrl ? 'Link' : 'Plataforma' }}</span>
                                     </div>
-                                </div>
-
-                                <!-- Job Item 2 -->
-                                <div class="bg-gray-50 rounded-2xl p-5 flex items-center justify-between border border-gray-100 hover:border-indigo-200 hover:shadow-sm transition cursor-pointer">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-12 h-12 bg-white rounded-xl border border-gray-200 flex items-center justify-center shadow-sm font-bold text-blue-600">GU</div>
-                                        <div>
-                                            <h4 class="font-bold text-gray-900">Arquiteto de Automação (n8n)</h4>
-                                            <p class="text-sm text-gray-500">Fintech BR • Híbrido</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col items-end">
-                                        <span class="bg-indigo-100 text-[#4f46e5] px-3 py-1 rounded-full text-xs font-bold tracking-wide">88% MATCH</span>
-                                        <span class="text-xs text-gray-400 mt-1">Via Gupy</span>
-                                    </div>
-                                </div>
+                                </a>
+                                @empty
+                                <div class="text-center text-gray-500 py-4">Nenhuma vaga processada ainda. Aguarde a análise da IA.</div>
+                                @endforelse
                             </div>
                         </div>
 

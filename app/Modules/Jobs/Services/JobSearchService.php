@@ -48,9 +48,36 @@ class JobSearchService
             }
 
             // SCORE
-            $score = $this->scorer->scoreJob($job, "Perfil do usuario simulado");
+            $userResume = $userProfile->resume_text ?? "Desenvolvedor Profissional";
+            $score = $this->scorer->scoreJob($job, $userResume);
 
             if ($score >= $userProfile->min_match_score) {
+                // PERSISTÊNCIA NO BANCO
+                $jobSource = \App\Models\JobSource::firstOrCreate(
+                    ['slug' => $job->source],
+                    ['name' => ucfirst($job->source), 'enabled' => true]
+                );
+
+                $jobPosting = \App\Models\JobPosting::updateOrCreate(
+                    ['external_id' => $job->externalId, 'job_source_id' => $jobSource->id],
+                    [
+                        'title' => $job->title,
+                        'company' => $job->company,
+                        'description' => substr($job->description, 0, 2000),
+                        'requirements' => $job->requirements,
+                        'city' => $job->location['city'] ?? null,
+                        'state' => $job->location['state'] ?? null,
+                        'country' => $job->location['country'] ?? null,
+                        'work_mode' => $job->workMode,
+                        'source_url' => $job->sourceUrl,
+                    ]
+                );
+
+                \App\Models\JobMatch::updateOrCreate(
+                    ['user_id' => $userProfile->user_id, 'job_posting_id' => $jobPosting->id],
+                    ['score' => $score, 'status' => 'pending']
+                );
+
                 $results[] = [
                     'job' => $job,
                     'score' => $score

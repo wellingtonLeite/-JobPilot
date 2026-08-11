@@ -11,7 +11,14 @@ Route::get('/dashboard', function () {
     if (!auth()->user()->profile) {
         return redirect()->route('onboarding');
     }
-    return view('dashboard');
+
+    $matches = \App\Models\JobMatch::with('jobPosting')
+        ->where('user_id', auth()->id())
+        ->orderBy('score', 'desc')
+        ->take(10)
+        ->get();
+        
+    return view('dashboard', compact('matches'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 use App\Http\Controllers\OnboardingController;

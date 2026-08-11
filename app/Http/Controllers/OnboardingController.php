@@ -22,10 +22,15 @@ class OnboardingController extends Controller
             'home_office_only' => 'required|boolean',
             'has_english_proficiency' => 'required|boolean',
             'min_match_score' => 'required|integer|min:0|max:100',
+            'resume_text' => 'required|string|min:10',
         ]);
 
-        $profile = new \App\Models\UserProfile($validated);
-        auth()->user()->profile()->save($profile);
+        $request->user()->profile()->create([
+            'home_office_only' => $validated['home_office_only'],
+            'has_english_proficiency' => $validated['has_english_proficiency'],
+            'min_match_score' => $validated['min_match_score'],
+            'resume_text' => $validated['resume_text'],
+        ]);
 
         return redirect()->route('dashboard')->with('success', 'Perfil configurado com sucesso!');
     }

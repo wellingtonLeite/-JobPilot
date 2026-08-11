@@ -23,18 +23,21 @@ class JobPilotSearchCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(\App\Modules\Jobs\Services\JobSearchService $searchService)
     {
-        $this->info('Iniciando pesquisa paralela...');
+        $this->info('Iniciando pesquisa paralela JobPilot...');
+
+        $profile = \App\Models\UserProfile::first();
+        if (!$profile) {
+            $this->error('Nenhum perfil configurado no banco de dados. Cadastre-se primeiro.');
+            return;
+        }
+
+        $this->info('Perfil encontrado: ID ' . $profile->user_id . ' (Score mínimo: ' . $profile->min_match_score . '%)');
         $this->info('Consultando LinkedIn, InfoJobs e Gupy...');
-        sleep(1); // Simulando delay
         
-        $this->info('Executando deduplicação...');
-        sleep(1);
+        $results = $searchService->execute($profile, ['desenvolvedor', 'php', 'laravel']);
         
-        $this->info('Executando análise de compatibilidade via Gemini AI...');
-        sleep(2);
-        
-        $this->info('Processo concluído! Vagas filtradas e enviadas ao banco de dados.');
+        $this->info('Processo concluído! ' . count($results) . ' vagas deram match e foram salvas no banco de dados.');
     }
 }

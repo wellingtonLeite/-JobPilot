@@ -55,6 +55,15 @@
                             </div>
                         </div>
 
+                        <!-- Resume Text -->
+                        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100 transition duration-200 hover:border-[#4f46e5]">
+                            <label class="block mb-2">
+                                <span class="block text-lg font-semibold text-gray-900">Seu Currículo / Resumo Profissional</span>
+                                <span class="block text-sm text-gray-500 mt-1">Cole o texto do seu CV ou LinkedIn. A IA usará isso para calcular a compatibilidade.</span>
+                            </label>
+                            <textarea name="resume_text" rows="5" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-[#4f46e5] text-gray-700" required placeholder="Sou Desenvolvedor Sênior com foco em PHP, Laravel, APIs RESTful..."></textarea>
+                        </div>
+
                         <div class="flex items-center justify-end mt-10">
                             <button type="submit" class="inline-flex items-center justify-center px-8 py-4 bg-[#4f46e5] border border-transparent rounded-xl font-bold text-white text-lg tracking-wide hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-[#4f46e5] focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-indigo-200">
                                 Finalizar Configuração

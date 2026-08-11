@@ -11,6 +11,7 @@ class UserProfile extends Model
         'home_office_only',
         'has_english_proficiency',
         'min_match_score',
+        'resume_text',
     ];
 
     protected $casts = [
