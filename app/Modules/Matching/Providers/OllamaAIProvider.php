@@ -31,7 +31,7 @@ FORMATO JSON: {\"score\":85,\"hard_skills\":[],\"soft_skills\":[],\"cover_letter
             ]);
         }
 
-        $response = $request->post("{$url}/api/generate", [
+        $response = $request->withoutVerifying()->post("{$url}/api/generate", [
             'model' => 'llama3',
             'prompt' => $prompt,
             'stream' => false,

@@ -25,21 +25,23 @@ class LinkedInAdapter implements JobSourceAdapter
                 ])->get($url);
 
             if ($response->successful()) {
-                $crawler = new \Symfony\Component\DomCrawler\Crawler($response->body());
+                $dom = new \DOMDocument();
+                @$dom->loadHTML($response->body());
+                $xpath = new \DOMXPath($dom);
 
-                // O LinkedIn em rotas deslogadas geralmente retorna os resultados em <li> com a classe base-card
-                $crawler->filter('ul.jobs-search__results-list > li')->each(function (\Symfony\Component\DomCrawler\Crawler $node) use (&$jobs) {
+                $jobNodes = $xpath->query("//ul[contains(@class, 'jobs-search__results-list')]/li");
+
+                foreach ($jobNodes as $node) {
                     try {
-                        $titleNode = $node->filter('.base-search-card__title')->first();
-                        $title = $titleNode->count() > 0 ? trim($titleNode->text()) : 'Vaga LinkedIn';
+                        $titleNode = $xpath->query(".//*[contains(@class, 'base-search-card__title')]", $node);
+                        $title = $titleNode->length > 0 ? trim($titleNode->item(0)->textContent) : 'Vaga LinkedIn';
                         
-                        $companyNode = $node->filter('.base-search-card__subtitle')->first();
-                        $company = $companyNode->count() > 0 ? trim($companyNode->text()) : 'Empresa Confidencial';
+                        $companyNode = $xpath->query(".//*[contains(@class, 'base-search-card__subtitle')]", $node);
+                        $company = $companyNode->length > 0 ? trim($companyNode->item(0)->textContent) : 'Empresa Confidencial';
 
-                        $linkNode = $node->filter('a.base-card__full-link')->first();
-                        $link = $linkNode->count() > 0 ? trim($linkNode->attr('href')) : null;
+                        $linkNode = $xpath->query(".//a[contains(@class, 'base-card__full-link')]", $node);
+                        $link = $linkNode->length > 0 ? trim($linkNode->item(0)->getAttribute('href')) : null;
                         
-                        // Obter ID externo
                         preg_match('/view\/(\d+)/', $link ?? '', $matches);
                         $externalId = $matches[1] ?? uniqid();
 
@@ -57,12 +59,14 @@ class LinkedInAdapter implements JobSourceAdapter
                             discoveredAt: new \DateTimeImmutable(),
                             sourceUrl: $link
                         );
+
+                        if (count($jobs) >= 10) break;
                     } catch (\Exception $e) {
                         \Illuminate\Support\Facades\Log::warning('Erro ao fazer parse de uma vaga LinkedIn: ' . $e->getMessage());
                     }
-                });
+                }
             } else {
-                \Illuminate\Support\Facades\Log::warning("LinkedIn bloqueou a requisição (Status {$response->status()}). Simulando array vazio.");
+                \Illuminate\Support\Facades\Log::warning("LinkedIn bloqueou a requisição (Status {$response->status()}).");
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Erro ao buscar vagas no LinkedIn: ' . $e->getMessage());

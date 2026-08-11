@@ -11,7 +11,7 @@ class InfoJobsAdapter implements JobSourceAdapter
 {
     public function searchJobs(JobSearchParams $params): array
     {
-        $keyword = implode('+', $params->keywords ?? ['desenvolvedor']);
+        $keyword = urlencode(implode('+', $params->keywords ?? ['desenvolvedor']));
         $url = "https://www.infojobs.com.br/vagas-de-emprego.aspx?Palabra={$keyword}";
 
         $jobs = [];
@@ -25,37 +25,64 @@ class InfoJobsAdapter implements JobSourceAdapter
                 ])->get($url);
 
             if ($response->successful()) {
-                $crawler = new \Symfony\Component\DomCrawler\Crawler($response->body());
+                $dom = new \DOMDocument();
+                @$dom->loadHTML($response->body());
+                $xpath = new \DOMXPath($dom);
 
-                // Seletor básico do InfoJobs (pode variar, iterando sobre as vagas)
-                $crawler->filter('.js_rowVaga')->each(function (\Symfony\Component\DomCrawler\Crawler $node) use (&$jobs) {
+                // Infojobs list items
+                $jobNodes = $xpath->query("//div[contains(@class, 'card')] | //div[contains(@class, 'vaga')] | //a[contains(@class, 'text-decoration-none')]");
+                
+                foreach ($jobNodes as $node) {
                     try {
-                        $titleNode = $node->filter('.js_vagaLink')->first();
-                        $title = $titleNode->count() > 0 ? $titleNode->text() : 'Vaga InfoJobs';
+                        $titleNode = $xpath->query(".//h2 | .//div[contains(@class, 'h3')]", $node);
+                        $companyNode = $xpath->query(".//div[contains(@class, 'company')] | .//div[contains(@class, 'text-body')]", $node);
                         
-                        $companyNode = $node->filter('.js_vagaCompany')->first();
-                        $company = $companyNode->count() > 0 ? $companyNode->text() : 'Empresa Confidencial';
+                        if ($titleNode->length === 0) continue;
 
-                        $link = $titleNode->count() > 0 ? $titleNode->attr('href') : null;
-                        
+                        $title = trim($titleNode->item(0)->textContent);
+                        $company = $companyNode->length > 0 ? trim($companyNode->item(0)->textContent) : 'Confidencial';
+                        $link = null;
+
+                        if ($node->nodeName === 'a' && $node->hasAttribute('href')) {
+                            $link = $node->getAttribute('href');
+                        } else {
+                            $linkNodes = $xpath->query(".//a", $node);
+                            if ($linkNodes->length > 0) {
+                                $link = $linkNodes->item(0)->getAttribute('href');
+                            }
+                        }
+
+                        if ($link && !str_starts_with($link, 'http')) {
+                            $link = 'https://www.infojobs.com.br' . $link;
+                        }
+
+                        $externalId = uniqid('ij_');
+                        if ($link && preg_match('/vaga-de-emprego-(.+)\.aspx/i', $link, $matches)) {
+                            $externalId = $matches[1];
+                        }
+
                         $jobs[] = new JobDto(
                             id: uniqid('ij_'),
                             source: 'infojobs',
-                            externalId: uniqid(),
-                            title: trim($title),
-                            company: trim($company),
-                            description: 'Descrição completa acessível no link.',
+                            externalId: $externalId,
+                            title: $title,
+                            company: $company,
+                            description: "Veja os detalhes completos no InfoJobs.",
                             requirements: [],
-                            location: ['city' => 'Brasil'],
+                            location: ['country' => 'Brasil'],
                             workMode: 'unknown',
                             applicationStatus: 'open',
                             discoveredAt: new \DateTimeImmutable(),
                             sourceUrl: $link
                         );
+
+                        if (count($jobs) >= 10) break; // Limit to 10 to speed up
                     } catch (\Exception $e) {
                         \Illuminate\Support\Facades\Log::warning('Erro ao fazer parse de uma vaga InfoJobs: ' . $e->getMessage());
                     }
-                });
+                }
+            } else {
+                \Illuminate\Support\Facades\Log::warning("InfoJobs bloqueou a requisição (Status {$response->status()}).");
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Erro ao buscar vagas no InfoJobs: ' . $e->getMessage());
@@ -66,7 +93,7 @@ class InfoJobsAdapter implements JobSourceAdapter
 
     public function getJob(string $jobId): ?JobDto
     {
-        return null; // Implementação futura para capturar a página detalhada da vaga
+        return null;
     }
 
     public function checkAvailability(JobDto $job): JobAvailability

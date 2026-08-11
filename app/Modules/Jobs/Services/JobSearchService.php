@@ -43,7 +43,7 @@ class JobSearchService
         $results = [];
         foreach ($uniqueJobs as $job) {
             // Checkers
-            if ($userProfile->home_office_only && $job->workMode !== 'remote') {
+            if ($userProfile->home_office_only && $job->workMode !== 'remote' && $job->workMode !== 'unknown') {
                 continue;
             }
 
@@ -98,6 +98,10 @@ class JobSearchService
                     'job' => $job,
                     'score' => $score
                 ];
+
+                if (count($results) >= 5) {
+                    break; // Limite de 5 avaliações por request no MVP para evitar Timeout na tela
+                }
             }
         }
 
