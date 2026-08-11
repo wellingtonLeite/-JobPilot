@@ -9,7 +9,7 @@
         "php": "^8.3",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
-        "smalot/pdfparser": "*",
+        "smalot/pdfparser": "^2.12",
         "symfony/css-selector": "^8.1",
         "symfony/dom-crawler": "^8.1"
     },
