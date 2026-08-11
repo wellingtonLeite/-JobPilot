@@ -1,17 +1,14 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Minhas Candidaturas (IA)') }}
-        </h2>
-    </x-slot>
+    <x-slot name="title">Minhas Candidaturas</x-slot>
 
-    <div class="py-12 bg-[#f0f4f8] min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Rascunhos Gerados</h1>
-                <p class="text-gray-500 mt-2">Vagas com altíssimo nível de compatibilidade onde a IA já preparou seu texto de abordagem.</p>
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Candidaturas Geradas pela IA</h1>
+                    <p class="text-gray-500 mt-2">Abaixo estão as Cover Letters geradas automaticamente para as vagas de alta compatibilidade.</p>
+                </div>
             </div>
-
             <div class="space-y-6">
                 @forelse($applications as $app)
                 <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 transition hover:shadow-md">

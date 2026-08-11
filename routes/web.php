@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/onboarding', [OnboardingController::class, 'index'])->name('onboarding');
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/jobs', [\App\Http\Controllers\JobController::class, 'index'])->name('jobs.index');
+    Route::get('/matches', [\App\Http\Controllers\MatchController::class, 'index'])->name('matches.index');
     
     Route::middleware(['admin'])->group(function () {
         Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
