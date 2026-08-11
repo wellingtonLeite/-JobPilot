@@ -23,11 +23,14 @@ Route::get('/dashboard', function () {
 
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\AdminController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/onboarding', [OnboardingController::class, 'index'])->name('onboarding');
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
+    Route::post('/admin/settings', [AdminController::class, 'store'])->name('admin.settings.store');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

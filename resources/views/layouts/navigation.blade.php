@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('applications.index')" :active="request()->routeIs('applications.index')">
                         {{ __('Minhas Candidaturas') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.settings')" :active="request()->routeIs('admin.settings')">
+                        {{ __('Admin Config') }}
+                    </x-nav-link>
                 </div>
             </div>
 

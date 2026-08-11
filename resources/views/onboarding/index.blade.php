@@ -8,7 +8,7 @@
                         <p class="mt-2 text-gray-500">Configure suas preferências para que o JobPilot encontre as melhores oportunidades.</p>
                     </div>
 
-                    <form method="POST" action="{{ route('onboarding') }}" class="space-y-8" x-data="{ minScore: 70 }">
+                    <form method="POST" action="{{ route('onboarding') }}" enctype="multipart/form-data" class="space-y-8" x-data="{ minScore: 70 }">
                         @csrf
 
                         <!-- Home Office -->
@@ -24,17 +24,25 @@
                             </label>
                         </div>
 
-                        <!-- English Proficiency -->
+                        <!-- Idiomas -->
                         <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100 transition duration-200 hover:border-[#4f46e5]">
-                            <label class="flex items-start space-x-4 cursor-pointer">
-                                <div class="flex items-center h-6">
-                                    <input id="has_english_proficiency" name="has_english_proficiency" type="checkbox" value="1" class="w-5 h-5 text-[#4f46e5] border-gray-300 rounded focus:ring-[#4f46e5]">
-                                </div>
-                                <div>
-                                    <span class="block text-lg font-semibold text-gray-900">Você possui proficiência profissional em inglês?</span>
-                                    <span class="block text-sm text-gray-500 mt-1">Isso ajudará a IA a focar em vagas que exigem ou valorizam o idioma.</span>
-                                </div>
-                            </label>
+                            <div class="mb-4">
+                                <label class="block text-lg font-semibold text-gray-900 mb-1">Qual o seu nível de proficiência em Inglês?</label>
+                                <span class="block text-sm text-gray-500 mb-2">Isso ajudará a IA a focar em vagas que exigem ou valorizam o idioma.</span>
+                                <select name="english_level" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-[#4f46e5] text-gray-700">
+                                    <option value="Não falo">Não falo / Básico (Leitura)</option>
+                                    <option value="Básico">Básico (Comunicação simples)</option>
+                                    <option value="Intermediário">Intermediário</option>
+                                    <option value="Avançado">Avançado</option>
+                                    <option value="Fluente/Nativo">Fluente / Nativo</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block font-semibold text-gray-900 mb-1">Quais outros idiomas você fala?</label>
+                                <span class="block text-sm text-gray-500 mb-2">Opcional. Ex: Espanhol (Avançado), Francês (Básico).</span>
+                                <input type="text" name="other_languages" placeholder="Ex: Espanhol Nativo" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-[#4f46e5] text-gray-700">
+                            </div>
                         </div>
 
                         <!-- Match Score -->
@@ -55,13 +63,26 @@
                             </div>
                         </div>
 
-                        <!-- Resume Text -->
+                        <!-- Resume Upload / Text -->
                         <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100 transition duration-200 hover:border-[#4f46e5]">
-                            <label class="block mb-2">
-                                <span class="block text-lg font-semibold text-gray-900">Seu Currículo / Resumo Profissional</span>
-                                <span class="block text-sm text-gray-500 mt-1">Cole o texto do seu CV ou LinkedIn. A IA usará isso para calcular a compatibilidade.</span>
+                            <label class="block mb-4">
+                                <span class="block text-lg font-semibold text-gray-900">Seu Currículo Profissional</span>
+                                <span class="block text-sm text-gray-500 mt-1">Envie o PDF do seu currículo ou cole o texto do seu LinkedIn. A IA usará isso para extrair suas Skills e calcular a compatibilidade.</span>
                             </label>
-                            <textarea name="resume_text" rows="5" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-[#4f46e5] text-gray-700" required placeholder="Sou Desenvolvedor Sênior com foco em PHP, Laravel, APIs RESTful..."></textarea>
+                            
+                            <div class="mb-4">
+                                <span class="block text-sm font-bold text-indigo-600 mb-2">Opção 1: Upload de PDF (Recomendado)</span>
+                                <input type="file" name="resume_pdf" accept=".pdf" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition">
+                            </div>
+                            
+                            <div class="flex items-center text-gray-400 my-4 before:flex-1 before:border-t before:border-gray-200 before:mr-4 after:flex-1 after:border-t after:border-gray-200 after:ml-4">
+                                ou
+                            </div>
+
+                            <div>
+                                <span class="block text-sm font-bold text-gray-600 mb-2">Opção 2: Colar Texto Manualmente</span>
+                                <textarea name="resume_text" rows="5" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-[#4f46e5] text-gray-700" placeholder="Cole aqui seu texto se não quiser enviar o PDF..."></textarea>
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-10">

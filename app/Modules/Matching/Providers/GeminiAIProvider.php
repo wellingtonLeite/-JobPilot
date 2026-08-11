@@ -10,7 +10,7 @@ class GeminiAIProvider implements AIProvider
 {
     public function calculateMatchScore(string $jobDescription, string $userProfileText): array
     {
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = \App\Models\SystemSetting::where('key', 'gemini_api_key')->value('value');
         $fallback = [
             'score' => rand(60, 99),
             'hard_skills' => [],
