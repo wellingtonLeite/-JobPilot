@@ -24,4 +24,21 @@ class JobController extends Controller
 
         return view('jobs.index', compact('jobs'));
     }
+
+    public function sync(\App\Modules\Jobs\Services\JobSearchService $searchService)
+    {
+        $profile = \App\Models\UserProfile::where('user_id', auth()->id())->first();
+
+        if (!$profile) {
+            return back()->with('error', 'Por favor, preencha seu perfil antes de buscar vagas.');
+        }
+
+        try {
+            $results = $searchService->execute($profile, ['desenvolvedor', 'php', 'laravel']);
+            $count = count($results);
+            return back()->with('success', "Busca concluída! $count vagas compatíveis foram encontradas e processadas pela IA.");
+        } catch (\Exception $e) {
+            return back()->with('error', "Erro ao buscar vagas. Certifique-se de que a Inteligência Artificial está configurada corretamente no painel de Admin. (Erro: {$e->getMessage()})");
+        }
+    }
 }

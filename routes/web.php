@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
     Route::get('/jobs', [\App\Http\Controllers\JobController::class, 'index'])->name('jobs.index');
+    Route::post('/jobs/sync', [\App\Http\Controllers\JobController::class, 'sync'])->name('jobs.sync');
     Route::get('/matches', [\App\Http\Controllers\MatchController::class, 'index'])->name('matches.index');
     
     Route::middleware(['admin'])->group(function () {

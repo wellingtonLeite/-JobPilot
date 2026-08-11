@@ -18,7 +18,9 @@ class GupyAdapter implements JobSourceAdapter
         $jobs = [];
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($url);
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->withoutVerifying()
+                ->get($url);
 
             if ($response->successful()) {
                 $data = $response->json();

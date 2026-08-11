@@ -24,6 +24,18 @@
                 <!-- Header Global -->
                 @include('layouts.header')
 
+                @if(session('success'))
+                    <div class="mx-10 mt-4 mb-2 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-xl shadow-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="mx-10 mt-4 mb-2 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl shadow-sm">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <!-- Conteúdo da Página Específica -->
                 <div class="flex-1 overflow-y-auto px-10 pb-10">
                     {{ $slot }}

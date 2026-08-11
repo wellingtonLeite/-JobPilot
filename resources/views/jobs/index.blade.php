@@ -9,16 +9,25 @@
                     <p class="text-gray-500 mt-2">Explore as {{ $jobs->total() }} vagas brutas coletadas pelo robô em todas as plataformas.</p>
                 </div>
 
-                <form method="GET" action="{{ route('jobs.index') }}" class="flex space-x-2">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar cargo ou empresa" class="rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <select name="work_mode" class="rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Qualquer modelo</option>
-                        <option value="remoto" {{ request('work_mode') == 'remoto' ? 'selected' : '' }}>Remoto</option>
-                        <option value="hibrido" {{ request('work_mode') == 'hibrido' ? 'selected' : '' }}>Híbrido</option>
-                        <option value="presencial" {{ request('work_mode') == 'presencial' ? 'selected' : '' }}>Presencial</option>
-                    </select>
-                    <button type="submit" class="bg-[#4f46e5] text-white px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-700">Filtrar</button>
-                </form>
+                <div class="flex flex-col gap-2 md:flex-row md:items-center">
+                    <form method="POST" action="{{ route('jobs.sync') }}" class="mr-2">
+                        @csrf
+                        <button type="submit" class="bg-white border-2 border-[#4f46e5] text-[#4f46e5] px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-50 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            Buscar Novas Vagas
+                        </button>
+                    </form>
+                    <form method="GET" action="{{ route('jobs.index') }}" class="flex space-x-2">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar cargo ou empresa" class="rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="work_mode" class="rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Qualquer modelo</option>
+                            <option value="remoto" {{ request('work_mode') == 'remoto' ? 'selected' : '' }}>Remoto</option>
+                            <option value="hibrido" {{ request('work_mode') == 'hibrido' ? 'selected' : '' }}>Híbrido</option>
+                            <option value="presencial" {{ request('work_mode') == 'presencial' ? 'selected' : '' }}>Presencial</option>
+                        </select>
+                        <button type="submit" class="bg-[#4f46e5] text-white px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-700">Filtrar</button>
+                    </form>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

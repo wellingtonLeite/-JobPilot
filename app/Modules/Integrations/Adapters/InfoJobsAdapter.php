@@ -17,7 +17,12 @@ class InfoJobsAdapter implements JobSourceAdapter
         $jobs = [];
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($url);
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->withoutVerifying()
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                    'Accept-Language' => 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+                ])->get($url);
 
             if ($response->successful()) {
                 $crawler = new \Symfony\Component\DomCrawler\Crawler($response->body());
