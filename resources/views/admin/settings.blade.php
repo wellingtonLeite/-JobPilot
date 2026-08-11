@@ -9,7 +9,32 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">Configurações Globais</h1>
-                <p class="text-gray-500 mt-2">Gerencie as chaves de integração das Inteligências Artificiais e Scraping.</p>
+                <p class="text-gray-500 mt-2">Visão geral do sistema e integração das Inteligências Artificiais.</p>
+            </div>
+
+            <!-- Métricas Globais -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl">{{ $metrics['users'] }}</div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Total de Usuários</p>
+                        <p class="text-lg font-bold text-gray-900">Cadastrados</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xl">{{ $metrics['jobs'] }}</div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Total de Vagas</p>
+                        <p class="text-lg font-bold text-gray-900">Coletadas</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-pink-600 font-bold text-xl">{{ $metrics['applications'] }}</div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Candidaturas</p>
+                        <p class="text-lg font-bold text-gray-900">Geradas (IA)</p>
+                    </div>
+                </div>
             </div>
 
             @if(session('success'))
@@ -19,18 +44,43 @@
             @endif
 
             <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
-                <h3 class="text-xl font-bold text-gray-900 mb-6">Integrações de Inteligência Artificial</h3>
+                <div class="mb-6 border-b border-gray-100 pb-4">
+                    <h3 class="text-xl font-bold text-gray-900">Sistema de Inteligência Artificial (Fallback)</h3>
+                    <p class="text-gray-500 text-sm mt-1">O sistema tentará usar os provedores na ordem abaixo. Se um falhar ou ficar sem créditos, o próximo será acionado automaticamente.</p>
+                </div>
                 
                 <form action="{{ route('admin.settings.store') }}" method="POST" class="space-y-6">
                     @csrf
-                    <div>
-                        <label class="block font-bold text-gray-700 mb-2">Google Gemini API Key (1.5 Flash)</label>
-                        <p class="text-sm text-gray-500 mb-2">Essa chave será usada pelo Orquestrador para ler os currículos e calcular o match com as vagas.</p>
-                        <input type="password" name="gemini_api_key" value="{{ $geminiKey }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="AIzaSyA...">
+                    
+                    <div class="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold">1º Prioridade</span>
+                            <label class="font-bold text-gray-900">Google Gemini API Key (1.5 Flash)</label>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">Modelos gratuitos super rápidos.</p>
+                        <input type="password" name="gemini_api_key" value="{{ $geminiKey }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white" placeholder="AIzaSyA...">
                     </div>
 
-                    <div class="pt-4 border-t border-gray-100 flex justify-end">
-                        <button type="submit" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">
+                    <div class="bg-purple-50/50 p-6 rounded-xl border border-purple-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">2º Prioridade</span>
+                            <label class="font-bold text-gray-900">OpenRouter API Key</label>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">Acesso a modelos gratuitos como Meta Llama 3 8B, Google Gemma, etc.</p>
+                        <input type="password" name="openrouter_api_key" value="{{ $openRouterKey }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white" placeholder="sk-or-v1-...">
+                    </div>
+
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-1 bg-slate-200 text-slate-700 rounded text-xs font-bold">3º Prioridade</span>
+                            <label class="font-bold text-gray-900">Ollama Local URL</label>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">Caso tenha o Ollama rodando localmente no servidor para total gratuidade e privacidade.</p>
+                        <input type="text" name="ollama_url" value="{{ $ollamaUrl }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 bg-white" placeholder="http://localhost:11434">
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" class="px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition">
                             Salvar Configurações
                         </button>
                     </div>

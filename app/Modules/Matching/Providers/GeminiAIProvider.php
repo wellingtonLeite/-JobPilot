@@ -11,16 +11,9 @@ class GeminiAIProvider implements AIProvider
     public function calculateMatchScore(string $jobDescription, string $userProfileText): array
     {
         $apiKey = \App\Models\SystemSetting::where('key', 'gemini_api_key')->value('value');
-        $fallback = [
-            'score' => rand(60, 99),
-            'hard_skills' => [],
-            'soft_skills' => [],
-            'cover_letter' => 'Cover letter não gerada pois a API Key não foi configurada.'
-        ];
 
-        if (!$apiKey) {
-            Log::warning('GEMINI_API_KEY não configurada. Usando fallback.');
-            return $fallback;
+        if (empty($apiKey)) {
+            throw new \Exception("Gemini API Key not configured.");
         }
 
         $prompt = "Você é um especialista em RH e análise de currículos. Analise a seguinte vaga e o perfil do usuário.\n";
@@ -29,37 +22,31 @@ class GeminiAIProvider implements AIProvider
         $prompt .= "Vaga: " . $jobDescription . "\n\n";
         $prompt .= "Perfil do Usuário: " . $userProfileText;
 
-        try {
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
-                'contents' => [
-                    ['parts' => [['text' => $prompt]]]
-                ],
-                'generationConfig' => [
-                    'temperature' => 0.2,
-                ]
-            ]);
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
+            'contents' => [
+                ['parts' => [['text' => $prompt]]]
+            ],
+            'generationConfig' => [
+                'temperature' => 0.2,
+            ]
+        ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                $textResult = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
-                
-                // Limpar possíveis crases markdown (```json ... ```)
-                $textResult = preg_replace('/```json|```/', '', $textResult);
-                $json = json_decode(trim($textResult), true);
-
-                if (is_array($json) && isset($json['score'])) {
-                    return $json;
-                }
-            }
-
-            Log::error('Erro ou formato inválido do Gemini: ' . $response->body());
-            return $fallback;
-
-        } catch (\Exception $e) {
-            Log::error('Exceção ao conectar no Gemini: ' . $e->getMessage());
-            return $fallback;
+        if (!$response->successful()) {
+            throw new \Exception("Gemini API Error: " . $response->body());
         }
+
+        $data = $response->json();
+        $textResult = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        
+        $textResult = preg_replace('/```json|```/', '', $textResult);
+        $json = json_decode(trim($textResult), true);
+
+        if (!is_array($json) || !isset($json['score'])) {
+            throw new \Exception("Gemini returned invalid JSON.");
+        }
+
+        return $json;
     }
 }

@@ -8,21 +8,32 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $geminiKey = \App\Models\SystemSetting::where('key', 'gemini_api_key')->value('value');
-        return view('admin.settings', compact('geminiKey'));
+        $settings = \App\Models\SystemSetting::pluck('value', 'key')->toArray();
+        $geminiKey = $settings['gemini_api_key'] ?? '';
+        $openRouterKey = $settings['openrouter_api_key'] ?? '';
+        $ollamaUrl = $settings['ollama_url'] ?? 'http://localhost:11434';
+
+        $metrics = [
+            'users' => \App\Models\User::count(),
+            'jobs' => \App\Models\JobPosting::count(),
+            'applications' => \App\Models\Application::count(),
+        ];
+
+        return view('admin.settings', compact('geminiKey', 'openRouterKey', 'ollamaUrl', 'metrics'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'gemini_api_key' => 'required|string',
+            'gemini_api_key' => 'nullable|string',
+            'openrouter_api_key' => 'nullable|string',
+            'ollama_url' => 'nullable|string',
         ]);
 
-        \App\Models\SystemSetting::updateOrCreate(
-            ['key' => 'gemini_api_key'],
-            ['value' => $validated['gemini_api_key']]
-        );
+        foreach ($validated as $key => $value) {
+            \App\Models\SystemSetting::updateOrCreate(['key' => $key], ['value' => $value]);
+        }
 
-        return redirect()->route('admin.settings')->with('success', 'Chave de API salva com sucesso!');
+        return redirect()->route('admin.settings')->with('success', 'Configurações de IA salvas com sucesso!');
     }
 }

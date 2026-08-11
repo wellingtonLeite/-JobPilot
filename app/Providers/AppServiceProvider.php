@@ -13,7 +13,13 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             \App\Modules\Matching\Contracts\AIProvider::class,
-            \App\Modules\Matching\Providers\GeminiAIProvider::class
+            function ($app) {
+                return new \App\Modules\Matching\Providers\FallbackAIProvider([
+                    $app->make(\App\Modules\Matching\Providers\GeminiAIProvider::class),
+                    $app->make(\App\Modules\Matching\Providers\OpenRouterAIProvider::class),
+                    $app->make(\App\Modules\Matching\Providers\OllamaAIProvider::class),
+                ]);
+            }
         );
 
         $this->app->when(\App\Modules\Jobs\Services\JobSearchService::class)
