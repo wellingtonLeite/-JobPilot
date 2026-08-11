@@ -8,18 +8,25 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiAIProvider implements AIProvider
 {
-    public function calculateMatchScore(string $jobDescription, string $userProfileText): int
+    public function calculateMatchScore(string $jobDescription, string $userProfileText): array
     {
         $apiKey = env('GEMINI_API_KEY');
+        $fallback = [
+            'score' => rand(60, 99),
+            'hard_skills' => [],
+            'soft_skills' => [],
+            'cover_letter' => 'Cover letter não gerada pois a API Key não foi configurada.'
+        ];
 
         if (!$apiKey) {
-            Log::warning('GEMINI_API_KEY não configurada. Usando score padrão de fallback.');
-            return rand(60, 99); // Fallback caso não haja chave
+            Log::warning('GEMINI_API_KEY não configurada. Usando fallback.');
+            return $fallback;
         }
 
-        $prompt = "Você é um especialista em RH e análise de currículos. Analise a seguinte descrição de vaga e o perfil do usuário.\n";
-        $prompt .= "Retorne APENAS UM NÚMERO INTEIRO entre 0 e 100 representando a porcentagem de compatibilidade (match score).\n";
-        $prompt .= "Vaga: " . $jobDescription . "\n";
+        $prompt = "Você é um especialista em RH e análise de currículos. Analise a seguinte vaga e o perfil do usuário.\n";
+        $prompt .= "Retorne estritamente um JSON no seguinte formato (sem formatação markdown, apenas o JSON puro):\n";
+        $prompt .= '{"score": (inteiro 0-100), "hard_skills": ["skill1"], "soft_skills": ["skill2"], "cover_letter": "carta em pt-br"}'."\n\n";
+        $prompt .= "Vaga: " . $jobDescription . "\n\n";
         $prompt .= "Perfil do Usuário: " . $userProfileText;
 
         try {
@@ -30,25 +37,29 @@ class GeminiAIProvider implements AIProvider
                     ['parts' => [['text' => $prompt]]]
                 ],
                 'generationConfig' => [
-                    'temperature' => 0.1,
+                    'temperature' => 0.2,
                 ]
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
-                $textResult = $data['candidates'][0]['content']['parts'][0]['text'] ?? '0';
+                $textResult = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
                 
-                // Limpar resultado para extrair apenas o número
-                preg_match('/\d+/', $textResult, $matches);
-                return isset($matches[0]) ? (int) $matches[0] : 0;
+                // Limpar possíveis crases markdown (```json ... ```)
+                $textResult = preg_replace('/```json|```/', '', $textResult);
+                $json = json_decode(trim($textResult), true);
+
+                if (is_array($json) && isset($json['score'])) {
+                    return $json;
+                }
             }
 
-            Log::error('Erro na API do Gemini: ' . $response->body());
-            return 0;
+            Log::error('Erro ou formato inválido do Gemini: ' . $response->body());
+            return $fallback;
 
         } catch (\Exception $e) {
             Log::error('Exceção ao conectar no Gemini: ' . $e->getMessage());
-            return 0;
+            return $fallback;
         }
     }
 }

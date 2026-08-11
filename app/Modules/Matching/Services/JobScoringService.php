@@ -9,7 +9,7 @@ class JobScoringService
 {
     public function __construct(private AIProvider $aiProvider) {}
 
-    public function scoreJob(JobDto $job, string $userProfileText): int
+    public function scoreJob(JobDto $job, string $userProfileText): array
     {
         $jobText = $job->title . " " . $job->description . " " . implode(", ", $job->requirements);
         return $this->aiProvider->calculateMatchScore($jobText, $userProfileText);

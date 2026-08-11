@@ -7,7 +7,7 @@ interface AIProvider
     /**
      * @param string $jobDescription
      * @param string $userProfileText
-     * @return int Um score de 0 a 100
+     * @return array contendo score, hard_skills, soft_skills, e cover_letter
      */
-    public function calculateMatchScore(string $jobDescription, string $userProfileText): int;
+    public function calculateMatchScore(string $jobDescription, string $userProfileText): array;
 }

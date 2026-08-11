@@ -49,7 +49,8 @@ class JobSearchService
 
             // SCORE
             $userResume = $userProfile->resume_text ?? "Desenvolvedor Profissional";
-            $score = $this->scorer->scoreJob($job, $userResume);
+            $aiData = $this->scorer->scoreJob($job, $userResume);
+            $score = $aiData['score'] ?? 0;
 
             if ($score >= $userProfile->min_match_score) {
                 // PERSISTÊNCIA NO BANCO
@@ -75,8 +76,23 @@ class JobSearchService
 
                 \App\Models\JobMatch::updateOrCreate(
                     ['user_id' => $userProfile->user_id, 'job_posting_id' => $jobPosting->id],
-                    ['score' => $score, 'status' => 'pending']
+                    [
+                        'score' => $score, 
+                        'status' => 'pending',
+                        'match_details' => [
+                            'hard_skills' => $aiData['hard_skills'] ?? [],
+                            'soft_skills' => $aiData['soft_skills'] ?? []
+                        ]
+                    ]
                 );
+
+                // SE SCORE EXCEPCIONAL -> GERA CANDIDATURA AUTOMÁTICA (Draft)
+                if ($score >= 90 && isset($aiData['cover_letter'])) {
+                    \App\Models\Application::firstOrCreate(
+                        ['user_id' => $userProfile->user_id, 'job_posting_id' => $jobPosting->id],
+                        ['status' => 'cv_generated', 'cover_letter' => $aiData['cover_letter']]
+                    );
+                }
 
                 $results[] = [
                     'job' => $job,
